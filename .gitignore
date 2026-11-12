@@ -22,5 +22,10 @@
 /src/main/frontend/.vite/
 /src/main/frontend/.env
 /src/main/frontend/.env.*
+<<<<<<< HEAD
 /src/main/frontend/test-results/
 /src/main/frontend/playwright-report/
+=======
+/src/main/frontend/test-results/
+/src/main/frontend/playwright-report/
+>>>>>>> 2ac57e9eda84bff4714effeae6bd48f520eb88c3
