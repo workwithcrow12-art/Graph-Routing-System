@@ -17,6 +17,7 @@ test('the compact tablet toolbar exposes the analysis button by name', async ({ 
 });
 
 test('real routing, alternative selection, walking and algorithm comparison work at desktop and mobile sizes', async ({ page }) => {
+  test.slow(process.platform === 'win32', 'Software-rendered maps make this full journey slower on Windows.');
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
