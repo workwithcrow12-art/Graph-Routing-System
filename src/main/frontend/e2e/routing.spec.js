@@ -15,6 +15,23 @@ async function successfulPost(page, path, submit) {
   return payload;
 }
 
+async function routeWithQuotaRetry(page, response) {
+  let payload = await response.json();
+  if (response.status() === 422 && payload.error?.code === 'ROUTE_LIMIT_EXCEEDED') {
+    const pending = nextPost(page, '/api/routes');
+    await page.getByRole('button', { name: 'Thử lại chỉ với tuyến chính' }).click();
+    const retry = await pending;
+    expect(retry.request().postDataJSON().alternatives).toBe(1);
+    payload = await retry.json();
+    expect(retry.ok(), payload.error?.message).toBe(true);
+    expect(payload.routes).toHaveLength(1);
+    await expect(page.getByRole('alert')).toHaveCount(0);
+  } else {
+    expect(response.ok(), payload.error?.message).toBe(true);
+  }
+  return payload;
+}
+
 test('the compact tablet toolbar exposes the analysis button by name', async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 1000 });
   await page.goto('/');
@@ -57,8 +74,7 @@ test('real routing, alternative selection, walking and algorithm comparison work
   const walkingRequest = nextPost(page, '/api/routes');
   await page.getByRole('button', { name: 'Tìm đường', exact: true }).click();
   const walkingResponse = await walkingRequest;
-  expect(walkingResponse.ok()).toBe(true);
-  const walking = await walkingResponse.json();
+  const walking = await routeWithQuotaRetry(page, walkingResponse);
   expect(walking.mode).toBe('walking');
   expect(walking.routes[0].durationSeconds).not.toBe(motorcycle.routes[0].durationSeconds);
   await expect(page.locator('.route-card').first()).toBeVisible();
@@ -90,13 +106,25 @@ test('real routing, alternative selection, walking and algorithm comparison work
   expect(errors).toEqual([]);
 });
 
-test('saving traffic clears the stale route and a new route uses the observation', async ({ page }) => {
+for (const forceRouteLimit of [false, true]) {
+test(forceRouteLimit
+  ? 'traffic routing recovers from search limits by requesting real primary routes'
+  : 'saving traffic clears the stale route and a new route uses the observation', async ({ page }) => {
+  if (forceRouteLimit) {
+    await page.route('**/api/routes', async (route) => {
+      if (route.request().postDataJSON().alternatives > 1) {
+        await route.fulfill({ status: 422, json: {
+          error: { code: 'ROUTE_LIMIT_EXCEEDED', message: 'Search exceeded its time limit' },
+        } });
+      } else await route.continue();
+    });
+  }
   await page.goto('/');
   const originalRequest = nextPost(page, '/api/routes');
   await page.getByRole('button', { name: 'Thử một hành trình' }).click();
   const originalResponse = await originalRequest;
-  expect(originalResponse.ok()).toBe(true);
-  const { routes: [originalRoute] } = await originalResponse.json();
+  if (forceRouteLimit) expect(originalResponse.status()).toBe(422);
+  const { routes: [originalRoute] } = await routeWithQuotaRetry(page, originalResponse);
   const affectedSegment = originalRoute.segments[0].id;
   const cards = page.locator('.route-card');
   await expect(cards.first()).toBeVisible();
@@ -117,8 +145,8 @@ test('saving traffic clears the stale route and a new route uses the observation
   const updatedRequest = nextPost(page, '/api/routes');
   await page.getByRole('button', { name: 'Tìm đường', exact: true }).click();
   const updatedResponse = await updatedRequest;
-  expect(updatedResponse.ok()).toBe(true);
-  const updated = await updatedResponse.json();
+  if (forceRouteLimit) expect(updatedResponse.status()).toBe(422);
+  const updated = await routeWithQuotaRetry(page, updatedResponse);
   expect(updated.traffic).toMatchObject({ active: true, updates: 1 });
   expect(updated.routes[0].segments.map(({ id }) => id)).not.toContain(affectedSegment);
   await expect(cards.first()).toBeVisible();
@@ -132,6 +160,7 @@ test('saving traffic clears the stale route and a new route uses the observation
   await expect(traffic.getByText('Đã xóa snapshot giao thông.')).toBeVisible();
   await expect(traffic.getByText('Chưa có quan sát giao thông đang hiệu lực.')).toBeVisible();
 });
+}
 
 test('custom graph edits show a rejected duplicate and recover on the next valid edit', async ({ page }) => {
   await page.goto('/');
