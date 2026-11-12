@@ -93,8 +93,3 @@ The project source code is available under the MIT License. Copyright (c) 2026 D
 Road data is **© OpenStreetMap contributors** and is available under the Open Database License 1.0. The data notice also appears in the map and dataset metadata. [OpenStreetMap attribution](https://www.openstreetmap.org/copyright) · [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/)
 
 Third-party libraries and the Inter font retain their own licenses. Both source archives include `LICENSE`. The frontend distribution includes `LICENSE` and `THIRD-PARTY-LICENSES.md`. The standalone JAR includes those files under `web/` and preserves Java dependency notices under `META-INF/licenses/java/`.
-<<<<<<< HEAD
-
-=======
-
->>>>>>> 2ac57e9eda84bff4714effeae6bd48f520eb88c3
