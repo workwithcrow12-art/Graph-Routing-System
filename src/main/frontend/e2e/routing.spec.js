@@ -6,6 +6,15 @@ function nextPost(page, path) {
     new URL(response.url()).pathname === path && response.request().method() === 'POST');
 }
 
+async function successfulPost(page, path, submit) {
+  const pending = nextPost(page, path);
+  await submit();
+  const response = await pending;
+  const payload = await response.json();
+  expect(response.ok(), `${path} returned HTTP ${response.status()}`).toBe(true);
+  return payload;
+}
+
 test('the compact tablet toolbar exposes the analysis button by name', async ({ page }) => {
   await page.setViewportSize({ width: 900, height: 1000 });
   await page.goto('/');
@@ -63,11 +72,13 @@ test('real routing, alternative selection, walking and algorithm comparison work
   await page.getByRole('button', { name: 'Thu gọn bảng chỉ đường' }).click();
   await page.getByRole('button', { name: 'Thuật toán', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Chạy thuật toán', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Chạy thuật toán', exact: true }).click();
+  await successfulPost(page, '/api/algorithms/run', () =>
+    page.getByRole('button', { name: 'Chạy thuật toán', exact: true }).click());
   await expect(page.locator('.analysis-bar-row').first()).toBeVisible();
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByRole('button', { name: 'A*', exact: true }).click();
-  await page.getByRole('button', { name: 'Chạy thuật toán', exact: true }).click();
+  await successfulPost(page, '/api/algorithms/run', () =>
+    page.getByRole('button', { name: 'Chạy thuật toán', exact: true }).click());
   await expect(page.locator('.analysis-bar-row')).toHaveCount(2);
   const metrics = await page.locator('.analysis-bar-row strong').allTextContents();
   expect(metrics[0]).not.toEqual(metrics[1]);
@@ -95,7 +106,10 @@ test('saving traffic clears the stale route and a new route uses the observation
   await traffic.getByLabel('Lọc cung đường').fill(affectedSegment);
   await traffic.getByLabel(/Cung đường \(/).selectOption(affectedSegment);
   await traffic.getByLabel('Đóng đoạn đường').check();
-  await traffic.getByRole('button', { name: 'Lưu tình trạng' }).click();
+  // Give rendering its own assertion budget after the save response is consumed.
+  const saved = await successfulPost(page, '/api/traffic/update', () =>
+    traffic.getByRole('button', { name: 'Lưu tình trạng' }).click());
+  expect(saved).toMatchObject({ active: true, updates: 1 });
   await expect(traffic.getByText(/Đang áp dụng 1 quan sát/)).toBeVisible();
   await traffic.getByRole('button', { name: 'Đóng giao thông' }).click();
   await expect(cards).toHaveCount(0);
@@ -130,7 +144,7 @@ test('custom graph edits show a rejected duplicate and recover on the next valid
   const addNode = editor.getByRole('button', { name: 'Thêm nút' });
   await editor.getByLabel('ID nút').fill(nodeId);
   await editor.getByLabel('Tên nút').fill('Nút thử nghiệm');
-  await addNode.click();
+  await successfulPost(page, '/api/analysis/graph/edit', () => addNode.click());
   const nodes = editor.getByLabel('Nút cần xóa');
   const newNode = nodes.getByRole('option', { name: `Nút thử nghiệm (${nodeId})` });
   await expect(newNode).toHaveCount(1);
@@ -145,7 +159,8 @@ test('custom graph edits show a rejected duplicate and recover on the next valid
   await expect(newNode).toHaveCount(1);
 
   await nodes.selectOption(nodeId);
-  await editor.getByRole('button', { name: 'Xóa nút' }).click();
+  await successfulPost(page, '/api/analysis/graph/edit', () =>
+    editor.getByRole('button', { name: 'Xóa nút' }).click());
   await expect(newNode).toHaveCount(0);
   await expect(page.getByRole('alert')).toHaveCount(0);
 });
