@@ -1,0 +1,107 @@
+name: Build and verification
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/main/frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: src/main/frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: frontend-dist
+          path: src/main/frontend/dist/
+  verify:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        java: ['21', '25']
+        include:
+          - java: '21'
+            maven-options: '-Pjava21'
+          - java: '25'
+            maven-options: ''
+          - os: macos-latest
+            java: '21'
+            maven-options: '-Pjava21'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+          cache: maven
+      - name: Record build runtime and bytecode target
+        run: |
+          java -version
+          mvn -version
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: src/main/frontend/package-lock.json
+      - name: Build and test frontend and backend, then package the standalone JAR
+        run: mvn --batch-mode --no-transfer-progress ${{ matrix.maven-options }} clean verify
+      - name: Verify packaged command line
+        run: java -jar target/graphrouting-system-1.0-SNAPSHOT-jar-with-dependencies.jar demo
+      - name: Verify launcher and source packager under Windows PowerShell
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          .\src\test\powershell\run-backend.test.ps1
+          .\src\test\powershell\package-source.test.ps1
+      - name: Install Chromium for packaged browser tests
+        if: matrix.java == '21'
+        working-directory: src/main/frontend
+        run: npx playwright install ${{ runner.os == 'Linux' && '--with-deps' || '' }} chromium
+      - name: Test the standalone JAR in Chromium
+        id: packaged-e2e
+        if: matrix.java == '21'
+        working-directory: src/main/frontend
+        run: npm run test:e2e:packaged
+      - name: Upload packaged browser failure artifacts
+        if: failure() && steps.packaged-e2e.outcome == 'failure'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: packaged-browser-reports-${{ matrix.os }}-jdk${{ matrix.java }}
+          path: src/main/frontend/test-results/
+          if-no-files-found: ignore
+      - name: Record synthetic and real-network benchmarks
+        shell: bash
+        run: |
+          mkdir -p target/benchmarks
+          java -cp target/graphrouting-system-1.0-SNAPSHOT-jar-with-dependencies.jar graphroute.benchmark.RoutingBenchmark 100 20 > target/benchmarks/grid.json
+          java -cp target/graphrouting-system-1.0-SNAPSHOT-jar-with-dependencies.jar graphroute.benchmark.DatasetBenchmark 100 > target/benchmarks/osm.json
+      - name: Upload test and benchmark reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-reports-${{ matrix.os }}-jdk${{ matrix.java }}
+          path: |
+            target/surefire-reports/
+            target/benchmarks/
+      - name: Upload runnable backend and clean source archive
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-jar-${{ matrix.os }}-jdk${{ matrix.java }}
+          path: |
+            target/*-jar-with-dependencies.jar
+            target/*-source.zip

@@ -1,0 +1,41 @@
+[ {
+  "id" : "tx-khuat-duy-tien-nguyen-trai",
+  "name" : "Khuất Duy Tiến - Nguyễn Trãi",
+  "latitude" : 20.99351,
+  "longitude" : 105.80436
+}, {
+  "id" : "tx-le-van-luong-khuat-duy-tien",
+  "name" : "Lê Văn Lương - Khuất Duy Tiến",
+  "latitude" : 21.00063,
+  "longitude" : 105.79524
+}, {
+  "id" : "tx-le-van-luong-hoang-dao-thuy",
+  "name" : "Lê Văn Lương - Hoàng Đạo Thúy",
+  "latitude" : 21.00311,
+  "longitude" : 105.80058
+}, {
+  "id" : "tx-nguyen-trai-nguyen-tuan",
+  "name" : "Nguyễn Trãi - Nguyễn Tuân",
+  "latitude" : 20.99728,
+  "longitude" : 105.81165
+}, {
+  "id" : "tx-le-van-luong-nguyen-tuan",
+  "name" : "Lê Văn Lương - Nguyễn Tuân",
+  "latitude" : 21.00201,
+  "longitude" : 105.79815
+}, {
+  "id" : "tx-nguyen-tuan-nguy-nhu-kon-tum",
+  "name" : "Nguyễn Tuân - Ngụy Như Kon Tum",
+  "latitude" : 20.99893,
+  "longitude" : 105.80164
+}, {
+  "id" : "tx-vu-trong-phung-nguyen-trai",
+  "name" : "Vũ Trọng Phụng - Nguyễn Trãi",
+  "latitude" : 21.00045,
+  "longitude" : 105.81525
+}, {
+  "id" : "tx-vu-trong-phung-nguy-nhu-kon-tum",
+  "name" : "Vũ Trọng Phụng - Ngụy Như Kon Tum",
+  "latitude" : 20.99824,
+  "longitude" : 105.8082
+} ]

@@ -1,0 +1,2 @@
+# This source extract is verified byte for byte against its metadata SHA-256.
+/src/main/resources/data/thanh_xuan_osm.json -text

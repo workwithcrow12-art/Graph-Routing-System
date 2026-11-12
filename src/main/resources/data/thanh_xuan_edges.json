@@ -1,0 +1,82 @@
+[
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-khuat-duy-tien-nguyen-trai",
+    "target": "tx-le-van-luong-khuat-duy-tien",
+    "road": "Khuất Duy Tiến",
+    "weight": 1.235,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-khuat-duy-tien-nguyen-trai",
+    "target": "tx-nguyen-trai-nguyen-tuan",
+    "road": "Nguyễn Trãi",
+    "weight": 0.866,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-nguyen-trai-nguyen-tuan",
+    "target": "tx-vu-trong-phung-nguyen-trai",
+    "road": "Nguyễn Trãi",
+    "weight": 0.514,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-le-van-luong-khuat-duy-tien",
+    "target": "tx-le-van-luong-nguyen-tuan",
+    "road": "Lê Văn Lương",
+    "weight": 0.4,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-le-van-luong-nguyen-tuan",
+    "target": "tx-le-van-luong-hoang-dao-thuy",
+    "road": "Lê Văn Lương",
+    "weight": 0.3,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-le-van-luong-nguyen-tuan",
+    "target": "tx-nguyen-tuan-nguy-nhu-kon-tum",
+    "road": "Nguyễn Tuân",
+    "weight": 0.499,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-nguyen-tuan-nguy-nhu-kon-tum",
+    "target": "tx-nguyen-trai-nguyen-tuan",
+    "road": "Nguyễn Tuân",
+    "weight": 1.056,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-nguyen-tuan-nguy-nhu-kon-tum",
+    "target": "tx-vu-trong-phung-nguy-nhu-kon-tum",
+    "road": "Ngụy Như Kon Tum",
+    "weight": 0.7,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-vu-trong-phung-nguy-nhu-kon-tum",
+    "target": "tx-vu-trong-phung-nguyen-trai",
+    "road": "Vũ Trọng Phụng",
+    "weight": 0.773,
+    "directed": false
+  },
+  {
+    "graphType": "UNDIRECTED",
+    "source": "tx-le-van-luong-hoang-dao-thuy",
+    "target": "tx-vu-trong-phung-nguy-nhu-kon-tum",
+    "road": "Hoàng Đạo Thúy - Vũ Trọng Phụng",
+    "weight": 0.959,
+    "directed": false
+  }
+]

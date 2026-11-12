@@ -1,0 +1,11 @@
+{
+  "name": "Thanh Xuan, Hanoi road extract",
+  "endpoint": "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "query": "[out:json][timeout:45];way[\"highway\"][\"area\"!=\"yes\"](20.9900000,105.7950000,21.0070000,105.8200000);out body geom;",
+  "queryBbox": "20.990,105.795,21.007,105.820",
+  "downloadedDate": "2026-10-19",
+  "timestamp": "2026-10-19T10:55:02Z",
+  "attribution": "© OpenStreetMap contributors",
+  "license": "ODbL 1.0 https://opendatacommons.org/licenses/odbl/1-0/",
+  "sha256": "a2f029ef1c7b42843d23f19bb1c732f4fa204f3eedbdc50da42946471d953dd6"
+}
