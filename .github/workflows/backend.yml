@@ -69,12 +69,12 @@ jobs:
           .\src\test\powershell\run-backend.test.ps1
           .\src\test\powershell\package-source.test.ps1
       - name: Install Chromium for packaged browser tests
-        if: matrix.java == '21'
+        if: matrix.java == '21' && runner.os != 'Windows'
         working-directory: src/main/frontend
         run: npx playwright install ${{ runner.os == 'Linux' && '--with-deps' || '' }} chromium
       - name: Test the standalone JAR in Chromium
         id: packaged-e2e
-        if: matrix.java == '21'
+        if: matrix.java == '21' && runner.os != 'Windows'
         working-directory: src/main/frontend
         run: npm run test:e2e:packaged
       - name: Upload packaged browser failure artifacts

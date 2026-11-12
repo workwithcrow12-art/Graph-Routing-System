@@ -34,7 +34,7 @@ The benchmark reports separate index preparation and query times. It also report
 
 ## GitHub Actions
 
-The workflow builds with Node.js 24 and checks Windows and Linux on JDK 21 and 25. It also checks macOS on JDK 21. JDK 21 jobs run Chromium against the standalone JAR. Windows jobs exercise the PowerShell launcher and source packager. GitHub uploads test and benchmark reports and the build artifacts. [Workflow](../.github/workflows/backend.yml)
+The workflow builds with Node.js 24 and checks Windows and Linux on JDK 21 and 25. It also checks macOS on JDK 21. Linux and macOS JDK 21 jobs run Chromium against the standalone JAR. Windows jobs build and test the application and exercise the PowerShell launcher and source packager. GitHub uploads test and benchmark reports and the build artifacts. [Workflow](../.github/workflows/backend.yml)
 
 ## Publish the source
 
